@@ -37,7 +37,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.antlr.v4.runtime.tree.pattern.RuleTagToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,13 +53,6 @@ import java.util.List;
  *  Subclasses made for each rule and grammar track the parameters,
  *  return values, locals, and labels specific to that rule. These
  *  are the objects that are returned from rules.
- *
- *  Note text is not an actual field of a rule return value; it is computed
- *  from start and stop using the input stream's toString() method.  I
- *  could add a ctor to this so that we can pass in and store the input
- *  stream, but I'm not sure we want to do that.  It would seem to be undefined
- *  to get the .text property anyway if the rule matches tokens from multiple
- *  input streams.
  *
  *  I do not use getters for fields of objects that are used simply to
  *  group values such as this aggregate.  The getters/setters are there to
@@ -98,6 +90,11 @@ public class ParserRuleContext extends RuleContext {
 	public Token start, stop;
 
 	/**
+	 * The parser instance associated with this context
+	 */
+	public Parser parser;
+
+	/**
 	 * The exception that forced this rule to return. If the rule successfully
 	 * completed, this is {@code null}.
 	 */
@@ -107,6 +104,8 @@ public class ParserRuleContext extends RuleContext {
 
 	/** COPY a ctx (I'm deliberately not using copy constructor) */
 	public void copyFrom(ParserRuleContext ctx) {
+		this.parser = ctx.parser;
+
 		// from RuleContext
 		this.parent = ctx.parent;
 		this.invokingState = ctx.invokingState;
@@ -115,8 +114,9 @@ public class ParserRuleContext extends RuleContext {
 		this.stop = ctx.stop;
 	}
 
-	public ParserRuleContext(@Nullable ParserRuleContext parent, int invokingStateNumber) {
+	public ParserRuleContext(Parser parser, @Nullable ParserRuleContext parent, int invokingStateNumber) {
 		super(parent, invokingStateNumber);
+		this.parser = parser;
 	}
 
 	// Double dispatch methods for listeners
@@ -269,6 +269,10 @@ public class ParserRuleContext extends RuleContext {
 		return contexts;
 	}
 
+	public Parser getParser() {
+		return parser;
+	}
+
 	@Override
 	public int getChildCount() { return children!=null ? children.size() : 0; }
 
@@ -276,6 +280,11 @@ public class ParserRuleContext extends RuleContext {
 	public Interval getSourceInterval() {
 		if ( start==null || stop==null ) return Interval.INVALID;
 		return Interval.of(start.getTokenIndex(), stop.getTokenIndex());
+	}
+
+	/** Return a TokenSource representing the tokens beneath this tree node */
+	public TokenSource toSource() {
+		return new StreamSource(parser.getInputStream(), getSourceInterval());
 	}
 
 	public Token getStart() { return start; }

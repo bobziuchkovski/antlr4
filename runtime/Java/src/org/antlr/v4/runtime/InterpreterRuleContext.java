@@ -53,15 +53,17 @@ public class InterpreterRuleContext extends ParserRuleContext {
 	 * Constructs a new {@link InterpreterRuleContext} with the specified
 	 * parent, invoking state, and rule index.
 	 *
+	 * @param parser The parser associated with the current context.
 	 * @param parent The parent context.
 	 * @param invokingStateNumber The invoking state number.
 	 * @param ruleIndex The rule index for the current context.
 	 */
-	public InterpreterRuleContext(@Nullable ParserRuleContext parent,
+	public InterpreterRuleContext(Parser parser,
+								  @Nullable ParserRuleContext parent,
 								  int invokingStateNumber,
 								  int ruleIndex)
 	{
-		super(parent, invokingStateNumber);
+		super(parser, parent, invokingStateNumber);
 		this.ruleIndex = ruleIndex;
 	}
 

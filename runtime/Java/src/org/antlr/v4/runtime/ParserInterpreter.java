@@ -134,7 +134,7 @@ public class ParserInterpreter extends Parser {
 	public ParserRuleContext parse(int startRuleIndex) {
 		RuleStartState startRuleStartState = atn.ruleToStartState[startRuleIndex];
 
-		InterpreterRuleContext rootContext = new InterpreterRuleContext(null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
+		InterpreterRuleContext rootContext = new InterpreterRuleContext(this, null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
 		if (startRuleStartState.isPrecedenceRule) {
 			enterRecursionRule(rootContext, startRuleStartState.stateNumber, startRuleIndex, 0);
 		}
@@ -203,7 +203,7 @@ public class ParserInterpreter extends Parser {
 		switch (transition.getSerializationType()) {
 		case Transition.EPSILON:
 			if (pushRecursionContextStates.get(p.stateNumber) && !(transition.target instanceof LoopEndState)) {
-				InterpreterRuleContext ctx = new InterpreterRuleContext(_parentContextStack.peek().a, _parentContextStack.peek().b, _ctx.getRuleIndex());
+				InterpreterRuleContext ctx = new InterpreterRuleContext(this, _parentContextStack.peek().a, _parentContextStack.peek().b, _ctx.getRuleIndex());
 				pushNewRecursionContext(ctx, atn.ruleToStartState[p.ruleIndex].stateNumber, _ctx.getRuleIndex());
 			}
 			break;
@@ -228,7 +228,7 @@ public class ParserInterpreter extends Parser {
 		case Transition.RULE:
 			RuleStartState ruleStartState = (RuleStartState)transition.target;
 			int ruleIndex = ruleStartState.ruleIndex;
-			InterpreterRuleContext ctx = new InterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
+			InterpreterRuleContext ctx = new InterpreterRuleContext(this, _ctx, p.stateNumber, ruleIndex);
 			if (ruleStartState.isPrecedenceRule) {
 				enterRecursionRule(ctx, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
 			}
