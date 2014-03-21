@@ -37,7 +37,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.antlr.v4.runtime.tree.pattern.RuleTagToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -281,6 +280,11 @@ public class ParserRuleContext extends RuleContext {
 	public Interval getSourceInterval() {
 		if ( start==null || stop==null ) return Interval.INVALID;
 		return Interval.of(start.getTokenIndex(), stop.getTokenIndex());
+	}
+
+	/** Return a TokenSource representing the tokens beneath this tree node */
+	public TokenSource toSource() {
+		return new StreamSource(parser.getInputStream(), getSourceInterval());
 	}
 
 	public Token getStart() { return start; }
